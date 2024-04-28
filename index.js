@@ -9,8 +9,8 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer')
 const uploadMiddlerware = multer({ dest: 'uploads/' })
 const fs = require('fs')
-const Post = require('./models/Post')
-
+const Post = require('./models/Post');
+` `
 dotenv.config();
 const app = express();
 app.use(cors({ credentials: true, origin: process.env.FrontEnd || '*' }));
