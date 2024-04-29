@@ -38,7 +38,7 @@ app.post('/register', async(req, res) => {
                 username,
                 password: hashedPassword
             });
-            res.status(200).json({ requestData: user , message:'User created Successfully' });
+            res.status(200).json({ requestData: user });
         } else {
             res.status(400).json({ message: 'Username already taken' });
         }
@@ -84,7 +84,7 @@ app.get('/profile', (req, res) => {
         if (err) throw err;
         res.json(info)
     })
-    return res.json({req.cookies});
+    return res.json(req.cookies);
 });
 
 
