@@ -84,7 +84,7 @@ app.get('/profile', (req, res) => {
         if (err) throw err;
         res.json(info)
     })
-    return res.json(req.cookies);
+    return res.json({data:req.cookies});
 });
 
 
