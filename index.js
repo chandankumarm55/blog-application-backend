@@ -38,7 +38,7 @@ app.post('/register', async(req, res) => {
                 username,
                 password: hashedPassword
             });
-            res.status(200).json({ requestData: user });
+            res.status(200).json({ requestData: user , message:'User created Successfully' });
         } else {
             res.status(400).json({ message: 'Username already taken' });
         }
