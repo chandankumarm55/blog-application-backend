@@ -88,6 +88,7 @@ app.post('/logout', (req, res) => {
     res.cookie('token', '').json('ok')
 })
 
+
 app.post('/post', uploadMiddlerware.single('file'), async(req, res) => {
     try {
         const { originalname, path } = req.file;
@@ -96,25 +97,17 @@ app.post('/post', uploadMiddlerware.single('file'), async(req, res) => {
         const newPath = path + '.' + ext;
         fs.renameSync(path, newPath);
 
-        const { token } = req.cookies;
-        jwt.verify(token, secret, {}, async(err, info) => {
-            if (err) {
-                console.error('Error verifying token:', err);
-                return res.status(401).json({ error: 'Unauthorized' });
-            }
+        const { userId, title, summary, content } = req.body;
 
-            const { title, summary, content } = req.body;
-
-            const post = await Post.create({
-                title,
-                summary,
-                content,
-                cover: newPath,
-                author: info.id,
-            });
-
-            res.json(post);
+        const post = await Post.create({
+            title,
+            summary,
+            content,
+            cover: newPath,
+            author: userId,
         });
+
+        res.json(post);
     } catch (error) {
         console.error('Error creating post:', error);
         res.status(500).json({ error: 'Internal server error' });
