@@ -9,15 +9,13 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer')
 const uploadMiddlerware = multer({ dest: 'uploads/' })
 const fs = require('fs')
-const Post = require('./models/Post');
-` `
+const Post = require('./models/Post')
 dotenv.config();
 const app = express();
 app.use(cors({ credentials: true, origin: process.env.FrontEnd || '*' }));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
-
 
 mongoose.connect(process.env.Mongo).then(() => {
     console.log("MongoDB connected");
@@ -80,13 +78,11 @@ app.post('/login', async(req, res) => {
 app.get('/profile', (req, res) => {
     const { token } = req.cookies;
     jwt.verify(token, secret, {}, (err, info) => {
-
         if (err) throw err;
         res.json(info)
     })
     return res.json(req.cookies);
 });
-
 
 app.post('/logout', (req, res) => {
     res.cookie('token', '').json('ok')
