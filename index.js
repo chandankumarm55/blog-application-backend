@@ -12,7 +12,7 @@ const fs = require('fs')
 const Post = require('./models/Post')
 dotenv.config();
 const app = express();
-app.use(cors({ credentials: true, origin: process.env.FrontEnd }));
+app.use(cors({ credentials: true, origin: process.env.FrontEnd || '*' }));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
@@ -133,36 +133,42 @@ app.get('/post/:id', async(req, res) => {
     post = await Post.findById(id).populate('author', ['username']);
     res.json({ post })
 })
-
 app.put('/post', uploadMiddlerware.single('file'), async(req, res) => {
-    let newPath = ''
+    let newPath = '';
     if (req.file) {
-        const { originalname, path } = req.file
+        const { originalname, path } = req.file;
         const parts = originalname.split('.');
         const ext = parts[parts.length - 1];
         newPath = path + '.' + ext;
         fs.renameSync(path, newPath);
     }
-    const { token } = req.cookies;
-    jwt.verify(token, secret, {}, async(err, info) => {
-        if (err) throw err;
-        const { id, title, summary, content } = req.body;
+
+    const { id, title, summary, content, userId } = req.body;
+
+    try {
         const postDoc = await Post.findById(id);
-        const isAuthor = postDoc.author == info.id;
-        if (!isAuthor) {
-            return res.status(400).json({ message: 'Your not a owner of this post' })
-            throw 'Your not a owner of this post'
+        if (!postDoc) {
+            return res.status(404).json({ message: 'Post not found' });
         }
+
+        const isAuthor = postDoc.author == userId;
+        if (!isAuthor) {
+            return res.status(403).json({ message: 'You are not the owner of this post' });
+        }
+
         await postDoc.updateOne({
             title,
             summary,
             content,
             cover: newPath ? newPath : postDoc.cover
-        })
-        return res.json({ message: 'Updated Succsufulyy' })
-    })
+        });
 
-})
+        return res.json({ message: 'Updated successfully' });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
